@@ -2,11 +2,11 @@ module Alchemist
 
   module Errors
 
-    class InvalidTransmutationMethod < StandardError
+    class InvalidTransmutationMethod < TransmutationError
 
-      def initialize(from_type, to_type, traits)
-        super "No transmutation method exists for: from(#{attempted_method}), " +
-          "to(#{to_type}), traits(#{traits})"
+      def initialize(source_type, target_type)
+        super "No transmutation method exists for: " +
+          "from(#{source_type}), to(#{target_type})"
       end
 
     end

@@ -1,13 +1,27 @@
-require_relative 'travel_agent/trip'
+require_relative 'alchemist/recipe_book'
+require_relative 'alchemist/recipe'
+require_relative 'alchemist/transmutation'
 
-require_relative 'travel_agent/errors/invalid_translation_method'
+require_relative 'alchemist/rituals/result'
+require_relative 'alchemist/rituals/guard'
+require_relative 'alchemist/rituals/transfer'
+require_relative 'alchemist/rituals/source_method'
+#require_relative 'alchemist/rituals/alter_result'
 
-module TravelAgent
+require_relative 'alchemist/errors/transmutation_error'
+require_relative 'alchemist/errors/guard_failure'
+require_relative 'alchemist/errors/invalid_transmutation_method'
+require_relative 'alchemist/errors/no_target_received'
+require_relative 'alchemist/errors/no_result_field_for_transfer'
+require_relative 'alchemist/errors/invalid_source_method'
+
+module Alchemist
   extend self
-  
-  def trip(traveller, result_type)
-    trip = Trip.new(traveller, result_type)
-    trip.pack
+
+  def transmute(source_object, result_type)
+    transmutation = Transmutation.new(source_object, result_type)
+    transmutation.process
+    transmutation.result
   end
 
 end
