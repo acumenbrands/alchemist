@@ -1,18 +1,17 @@
-# Alchemist
-
-A bi-directional Ruby DSL for casting objects using a functional DSL
-
-TODOs
-
 - Tests for transpose
 - Split assign/pass?
 - Traits
   - Common trait to help de-duplicate traits that vary only slightly between each other
   - Warnings for overriding existing procs, to prevent redefining result calls and such
 
-
 FUTURE
 
+- Ritual/DSL-method for handling contents of enumerables
+- Result DSL call improvements
+  - No result call made equates to result_class.new
+  - No block, but arguments given are args passed directly to result_class.new(*args)
+  - Block given accepts source as a block var to initialize manually
+  - Block given with args raises an exception?
 - Ability to access specific procs in the recipe by sane naming
   - Allow for more fine-grained unit testing
 - Lazy loading based on rigid filename pattern
@@ -20,3 +19,4 @@ FUTURE
   - Allows recipes not in use to be GCed
   - Would need config definition for recipes directory
     - Convenience of Railtie defining app/recipes/ automatically
+- DSL method for custom rituals?

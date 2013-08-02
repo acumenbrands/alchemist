@@ -2,7 +2,7 @@ module Alchemist
 
   module Errors
 
-    class NoResultFieldForTransfer < TransmutationError
+    class InvalidResultMethodForTransfer < TransmutationError
 
       def initialize(method)
         super("Result object does not have a #{method} method defined")

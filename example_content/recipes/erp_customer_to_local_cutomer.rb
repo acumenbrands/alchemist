@@ -1,24 +1,43 @@
-require 'time'
-
 Alchemist::RecipeBook.write ErpCustomer, LocalCustomer do
 
-  result {
+  result do |erp_customer|
     LocalCustomer.new
-  }
-
-  source_method :name do |name|
-    self.first_name, self.last_name = *name.split(' ')
   end
 
-  transfer :email_address, :email
+  guard :first_name do |first_name|
+    first_name != "John"
+  end
 
-  source_method :event_log do |event_log|
-    event_log.each do |event|
-      date = Date.parse(event.datetime.split(' ', 2).first)
-      time = Time.parse(event.datetime)
+  transfer :first_name
+  transfer :last_name
 
-      self.user_events << UserEvent.new(event.name, date, time)
+  transfer :email, :email_address
+
+  transfer :date, :join_date do |date|
+    date.strftime('%m/%d/%Y')
+  end
+
+  transpose do
+    use :street, :city, :state, :zip
+
+    target :address, :shipping_address do
+      "#{street}, #{city}, #{state}, #{zip}"
     end
+  end
+
+  transpose do
+    use :orders_in_route, :shipped_orders
+
+    target :order_history do
+      {
+        in_route:  orders_in_route,
+        delivered: shipped_orders
+      }
+    end
+  end
+
+  transfer :events, :user_events do |events|
+    events.map { |event| Alchemist.transmute(event, UserEvent) }
   end
 
 end

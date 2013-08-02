@@ -13,16 +13,16 @@ module Alchemist
         @block        = block
       end
 
-      def call(source, result)
-        @source = source
-        result.public_send(mutator, value)
-      rescue NoMethodError
-        raise Errors::NoResultFieldForTransfer.new(mutator)
+      def call(context)
+        @context = context
+        @context.result.public_send(target_method, argument)
+      rescue NoMethodError, ArgumentError
+        raise Errors::InvalidResultMethodForTransfer.new(target_method)
       end
 
       private
 
-      def value
+      def argument
         block_value || source_value
       end
 
@@ -31,13 +31,23 @@ module Alchemist
       end
 
       def source_value
-        @source.public_send(@source_field)
+        @context.source.public_send(@source_field)
       end
 
-      def mutator
-        # @target_field can be nil in the event that the field names
-        # are the same between objects
-        "#{@result_field || @source_field}="
+      def target_method
+        if @context.result.respond_to?(result_mutator)
+          result_mutator
+        else
+          result_method
+        end
+      end
+
+      def result_method
+        @result_field || @source_field
+      end
+
+      def result_mutator
+        "#{result_method}="
       end
 
     end

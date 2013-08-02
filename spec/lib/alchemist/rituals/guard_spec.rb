@@ -14,7 +14,9 @@ describe Alchemist::Rituals::Guard do
       let(:source) { mock(name: 'Sarah') }
       let(:result) { mock() }
 
-      let(:execute_guard) { guard.call(source, result) }
+      let(:context) { Alchemist::Context.new(source, result) }
+
+      let(:execute_guard) { guard.call(context) }
 
       it "does not raise an exception" do
         expect { execute_guard }.to_not raise_error
@@ -27,7 +29,9 @@ describe Alchemist::Rituals::Guard do
       let(:source) { mock(name: ['Sarah', 'McFadden', 'Regean']) }
       let(:result) { mock() }
 
-      let(:execute_guard) { guard.call(source, result) }
+      let(:context) { Alchemist::Context.new(source, result) }
+
+      let(:execute_guard) { guard.call(context) }
 
       it "raises an exception" do
         expect { execute_guard }.to raise_error(Alchemist::Errors::GuardFailure)
