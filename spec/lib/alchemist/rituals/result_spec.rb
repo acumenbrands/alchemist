@@ -7,7 +7,7 @@ describe Alchemist::Rituals::Result do
 
   describe "#call" do
 
-    let(:user) { mock(name: 'Timothy') }
+    let(:user) { double(name: 'Timothy') }
 
     it "invokes the block given and returns the appropriate result" do
       expect(finder.call(user)).to eq("Timothy")
