@@ -12,40 +12,80 @@ describe Alchemist::RecipeBook do
 
   describe '#write' do
 
-    let(:write_recipe) {
-      Alchemist::RecipeBook::write(SourceClass, ResultClass, &recipe_proc)
-    }
+    context 'no trait is given' do
 
+      let(:write_recipe) {
+        Alchemist::RecipeBook::write(SourceClass, ResultClass, &recipe_proc)
+      }
 
-    it 'stores the given proc in a nested hash under the source and result constants' do
-      expect { write_recipe }.to change { recipes[SourceClass][ResultClass] }
-        .from(nil).to(recipe_proc)
+      it 'stores the given proc in a nested hash under the source and result constants' do
+        expect { write_recipe }.to change { recipes[SourceClass][ResultClass][nil] }
+          .from(nil).to(recipe_proc)
+      end
+
+    end
+
+    context 'a trait is defined' do
+
+      let(:write_recipe) {
+        Alchemist::RecipeBook::write(SourceClass, ResultClass, :trait, &recipe_proc)
+      }
+
+      it 'stores the given proc in a nested hash under the source and result constants' do
+        expect { write_recipe }.to change { recipes[SourceClass][ResultClass][:trait] }
+          .from(nil).to(recipe_proc)
+      end
+
     end
 
   end
 
   describe '#lookup' do
 
-    let(:lookup) { Alchemist::RecipeBook.lookup(SourceClass, ResultClass) }
+    let(:base)    { double }
+    let(:traited) { double }
 
-    context 'a source and result constant pair that match a recipe proc are given' do
+    let(:recipe_hash) do
+      {
+        base:    base,
+        traited: traited
+      }
+    end
+
+    let(:lookup) { Alchemist::RecipeBook.lookup(Class, Object, :trait) }
+
+    context ' no ArgumentError is raised' do
 
       before do
-        recipes[SourceClass][ResultClass] = recipe_proc
+        Alchemist::Reader.stub(:compile)
+        Alchemist::RecipeBook.stub(:base_recipe)    { base }
+        Alchemist::RecipeBook.stub(:traited_recipe) { traited }
+
+        lookup
       end
 
-      it 'returns a new instance of Recipe built with the proc' do
-        expect(lookup).to be_kind_of(Alchemist::Recipe)
+      it 'calls Reader.compile with results of the recipe lookups' do
+        expect(Alchemist::Reader).to have_received(:compile).with(recipe_hash)
       end
 
     end
 
-    context 'a source and result constant pair that does not match a recipe proc is given' do
-
-      let(:expected_error) { Alchemist::Errors::InvalidTransmutationMethod }
+    context 'an invalid trait is given' do
 
       it 'raises an InvalidTransmutationMethod exception' do
-        expect { lookup }.to raise_error(expected_error)
+        expect { lookup }.to raise_error(Alchemist::Errors::InvalidTransmutationMethod)
+      end
+
+    end
+
+    context 'an ArgumentError is raised' do
+
+      before do
+        Alchemist::Reader.stub(:compile) { raise ArgumentError.new }
+      end
+
+      it 'raises an InvalidTransmutationMethod exception' do
+        expect { lookup }.to raise_error(Alchemist::Errors::InvalidTransmutationMethod)
       end
 
     end

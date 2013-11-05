@@ -3,7 +3,13 @@ require 'spec_helper'
 describe Alchemist::Rituals::Guard do
 
   let(:field) { :name }
+
+  let(:result) { double }
+
   let(:guard) { Alchemist::Rituals::Guard.new(field, &block) }
+  let(:context) { Alchemist::Context.new(source, result) }
+
+  let(:execute_guard) { guard.call(context) }
 
   context "normal operation" do
 
@@ -12,11 +18,6 @@ describe Alchemist::Rituals::Guard do
     context "the given block returns true" do
 
       let(:source) { double(name: 'Sarah') }
-      let(:result) { double() }
-
-      let(:context) { Alchemist::Context.new(source, result) }
-
-      let(:execute_guard) { guard.call(context) }
 
       it "does not raise an exception" do
         expect { execute_guard }.to_not raise_error
@@ -27,11 +28,6 @@ describe Alchemist::Rituals::Guard do
     context "the given block returns a falsy value" do
 
       let(:source) { double(name: ['Sarah', 'McFadden', 'Regean']) }
-      let(:result) { double() }
-
-      let(:context) { Alchemist::Context.new(source, result) }
-
-      let(:execute_guard) { guard.call(context) }
 
       it "raises an exception" do
         expect { execute_guard }.to raise_error(Alchemist::Errors::GuardFailure)
@@ -42,6 +38,8 @@ describe Alchemist::Rituals::Guard do
   end
 
   context "the given block raises an exception" do
+
+    let(:source) { double(name: "Shoggoth") }
 
     let(:block) { Proc.new { |name| raise StandardError.new("Oh snap, son") } }
 

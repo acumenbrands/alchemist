@@ -2,15 +2,15 @@ require 'spec_helper'
 
 describe Alchemist::Recipe do
 
+  let(:recipe) { Alchemist::Recipe.read(&ritual_block) }
+
   describe 'result rituals' do
 
+    let(:ritual_block) do
+      Proc.new { result { Class.new } }
+    end
+
     it 'initializes a new instance of Alchemist::Rituals::Result' do
-      result_block = Proc.new do
-        result { Class.new }
-      end
-
-      recipe = Alchemist::Recipe.read(&result_block) 
-
       expect(recipe.result_ritual).to be_kind_of(Alchemist::Rituals::Result)
     end
 
@@ -18,30 +18,112 @@ describe Alchemist::Recipe do
 
   describe 'guard rituals' do
 
-    it 'initializes a new instance of Alchemist::Rituals::Guard' do
-      guard_block = Proc.new do
-        guard :source_field do |source_field| 
-          !source_field.nil
+    let(:ritual_block) do
+      Proc.new do
+        guard :source_field do |field_value|
+          "#{field_value}"
         end
       end
+    end
 
-      recipe = Alchemist::Recipe.read(&guard_block)
-      expect(recipe.guards.first).to be_kind_of(Alchemist::Rituals::Guard)
+    it 'initializes a new instance of Alchemist::Rituals::Guard' do
+      expect(recipe.guard_for(:source_field)).to be_kind_of(Alchemist::Rituals::Guard)
     end
 
   end
 
-  describe 'transfer rituals' do
+  describe 'transfer_rituals' do
 
-    it 'adds an instance of Alchemist::Rituals::Transfer to an array' do
-      block = Proc.new do
-        transfer :source_field, :target_field do |source_value|
-          source_value * 2
+    let(:ritual_block) do
+      Proc.new do
+        transfer :source_field
+      end
+    end
+
+    it 'initializes a new instance of Alchemist::Rituals::Transfer' do
+      expect(recipe.transfer_for(:source_field)).to be_kind_of(Alchemist::Rituals::Transfer)
+    end
+
+  end
+
+  describe 'aggregation rituals' do
+
+    let(:ritual_block) do
+      Proc.new do
+        aggregate_onto :target_field do
+          from :source_field, :other_source_field
+
+          with do
+            source_field + other_source_field
+          end
         end
       end
+    end
 
-      recipe = Alchemist::Recipe.read(&block)
-      expect(recipe.transfers.first).to be_kind_of(Alchemist::Rituals::Transfer)
+    it 'initializes a new instance of Alchemist::Rituals::Aggregation' do
+      expect(recipe.aggregation_for(:target_field)).to be_kind_of(Alchemist::Rituals::Aggregation)
+    end
+
+  end
+
+  describe 'distribution rituals' do
+
+    let(:ritual_block) do
+      Proc.new do
+        distribute_from :source_field do
+          target :target_field, :other_target_field do
+            source_field + 7
+          end
+        end
+      end
+    end
+
+    it 'initializes a new instance of Alchemist::Rituals::Distribution' do
+      expect(recipe.distribution_for(:source_field)).to be_kind_of(Alchemist::Rituals::Distribution)
+    end
+
+  end
+
+  describe '#merge!' do
+
+    let(:ritual_block) { Proc.new {} }
+
+    let(:result_ritual) { double }
+    let(:guard)         { double }
+    let(:transfer)      { double }
+    let(:aggregation)   { double }
+    let(:distribution)  { double }
+
+    let(:comprehension) do
+      OpenStruct.new(
+        result_ritual: result_ritual,
+        guards:        { source_field:           guard },
+        transfers:     { [:source_field, nil] => transfer },
+        aggregations:  { target_field:           aggregation },
+        distributions: { source_field:           distribution }
+      )
+    end
+
+    let(:merge) { recipe.merge!(comprehension) }
+
+    it 'updates the result ritual' do
+      expect { merge }.to change { recipe.result_ritual }.to(result_ritual)
+    end
+
+    it 'updates the guards' do
+      expect { merge }.to change { recipe.guards }.to(comprehension.guards)
+    end
+
+    it 'updates the transfers' do
+      expect { merge }.to change { recipe.transfers }.to(comprehension.transfers)
+    end
+
+    it 'updates the aggregations' do
+      expect { merge }.to change { recipe.aggregations }.to(comprehension.aggregations)
+    end
+
+    it 'updates the distributions' do
+      expect { merge }.to change { recipe.distributions }.to(comprehension.distributions)
     end
 
   end

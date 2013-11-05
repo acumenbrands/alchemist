@@ -2,11 +2,12 @@ module Alchemist
 
   class Transmutation
 
-    attr_reader :source, :result_type, :recipe, :result
+    attr_reader :source, :result_type, :trait, :recipe, :result
 
-    def initialize(source, result_type)
+    def initialize(source, result_type, trait=nil)
       @source      = source
       @result_type = result_type
+      @trait       = trait
       @result      = recipe.get_result(source)
     end
 
@@ -21,7 +22,7 @@ module Alchemist
     end
 
     def recipe
-      @recipe ||= RecipeBook.lookup(source_type, result_type)
+      @recipe ||= RecipeBook.lookup(source_type, result_type, trait)
     end
 
     def context
@@ -31,4 +32,3 @@ module Alchemist
   end
 
 end
-

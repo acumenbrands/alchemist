@@ -56,13 +56,12 @@ describe Alchemist do
   end
 
   describe 'ErpCustomer to LocalCustomer' do
+
     let(:transmute) do
       Alchemist.transmute(erp_customer, LocalCustomer)
     end
 
-    subject do
-      transmute
-    end
+    subject { transmute }
 
     its(:first_name)       { should eq(local_customer.first_name) }
     its(:last_name)        { should eq(local_customer.last_name) }
@@ -98,13 +97,42 @@ describe Alchemist do
 
   end
 
+  describe 'ErpCustomer to LocalCustomer with a trait' do
+
+    let(:transmute) do
+      Alchemist.transmute(erp_customer, LocalCustomer, :mess_up_email)
+    end
+
+    subject { transmute }
+
+    its(:first_name)       { should eq(local_customer.first_name) }
+    its(:last_name)        { should eq(local_customer.last_name) }
+    its(:join_date)        { should eq(local_customer.join_date) }
+    its(:address)          { should eq(local_customer.address) }
+    its(:shipping_address) { should eq(local_customer.shipping_address) }
+    its(:order_history)    { should eq(local_customer.order_history) }
+
+    it 'should not contain an @ symbol in the email' do
+      expect(transmute.email_address).to_not include('@')
+    end
+
+    context 'user events' do
+
+      subject do
+        transmute.user_events
+      end
+
+      its(:count) { should eq(local_customer.user_events.count) }
+
+    end
+
+  end
+
   describe 'LocalCustomer to ErpCustomer' do
 
     let(:transmute) { Alchemist.transmute(local_customer, ErpCustomer) }
 
-    subject do
-      transmute
-    end
+    subject { transmute }
 
     its(:first_name)      { should eq(erp_customer.first_name) }
     its(:last_name)       { should eq(erp_customer.last_name) }

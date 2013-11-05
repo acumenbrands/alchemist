@@ -2,17 +2,18 @@ module Alchemist
 
   module Rituals
 
-    class Transposition
+    class Aggregation
 
-      def initialize(&block)
-        @block = block
+      def initialize(target_field, &block)
+        @target_field = target_field
+        @block        = block
       end
 
       def call(context)
         @context = context
 
         evaluate_block
-        process_targets
+        process_target
       end
 
       private
@@ -22,14 +23,14 @@ module Alchemist
       end
 
       def comprehension
-        Dsl::TransposeComprehension.new.tap do |comp|
+        Dsl::AggregationComprehension.new(@target_field).tap do |comp|
           comp.instance_exec(&@block)
         end
       end
 
       def merge(comprehension)
         @source_methods = comprehension.source_methods
-        @targets        = comprehension.targets
+        @target         = comprehension.target
       end
 
       def source_proxy
@@ -38,10 +39,8 @@ module Alchemist
         end
       end
 
-      def process_targets
-        @targets.each do |target|
-          target.call(target_context)
-        end
+      def process_target
+        @target.call(target_context)
       end
 
       def target_context

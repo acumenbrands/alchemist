@@ -4,9 +4,9 @@ module Alchemist
 
     class InvalidTransmutationMethod < TransmutationError
 
-      def initialize(source_type, target_type)
+      def initialize(source_type, target_type, trait)
         super "No transmutation method exists for: " +
-          "from(#{source_type}), to(#{target_type})"
+          "from(#{source_type}), to(#{target_type}), trait(#{trait})"
       end
 
     end

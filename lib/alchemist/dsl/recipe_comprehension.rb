@@ -4,12 +4,16 @@ module Alchemist
 
     class RecipeComprehension
 
-      attr_reader :result_ritual, :guards, :transfers, :transpositions
+      attr_accessor :result_ritual, :guards, :transfers,
+                    :aggregations, :distributions
 
-      def initialize
-        @guards         = []
-        @transfers      = []
-        @transpositions = []
+      def initialize(&definition_block)
+        @guards         = {}
+        @transfers      = {}
+        @aggregations   = {}
+        @distributions  = {}
+
+        instance_exec(&definition_block)
       end
 
       def result(&block)
@@ -17,15 +21,20 @@ module Alchemist
       end
 
       def guard(field_name, &block)
-        @guards << Rituals::Guard.new(field_name, &block)
+        @guards[field_name] = Rituals::Guard.new(field_name, &block)
       end
 
       def transfer(source_field, target_field=nil, &block)
-        @transfers << Rituals::Transfer.new(source_field, target_field, &block)
+        transfer_key = [source_field, target_field]
+        @transfers[transfer_key] = Rituals::Transfer.new(source_field, target_field, &block)
       end
 
-      def transpose(&block)
-        @transpositions << Rituals::Transposition.new(&block)
+      def aggregate_onto(target_field, &block)
+        @aggregations[target_field] = Rituals::Aggregation.new(target_field, &block)
+      end
+
+      def distribute_from(source_field, &block)
+        @distributions[source_field] = Rituals::Distribution.new(source_field, &block)
       end
 
     end

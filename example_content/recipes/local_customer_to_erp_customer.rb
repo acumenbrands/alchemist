@@ -13,9 +13,7 @@ Alchemist::RecipeBook.write LocalCustomer, ErpCustomer do
     Date.strptime(join_date, '%m/%d/%Y')
   end
 
-  transpose do
-    use :address
-
+  distribute_from :address do
     target :street do
       address.split(', ')[0]
     end
@@ -33,9 +31,7 @@ Alchemist::RecipeBook.write LocalCustomer, ErpCustomer do
     end
   end
 
-  transpose do
-    use :order_history
-
+  distribute_from :order_history do
     target :orders_in_route do
       order_history[:in_route]
     end
