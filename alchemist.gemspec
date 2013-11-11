@@ -7,8 +7,8 @@ Gem::Specification.new do |s|
   s.version           = '0.0.0'
   s.date              = '2013-07-26'
 
-  s.description   = %q{A bi-directional Ruby DSL for casting objects using a functional DSL}
-  s.summary       = %q{A bi-directional Ruby DSL for casting objects using a functional DSL}
+  s.description   = %q{A pure-Ruby DSL for casting objects using a functional DSL}
+  s.summary       = %q{A pure-Ruby DSL for casting objects using a functional DSL}
 
   s.authors       = ["James Christie", "Alex Williams"]
   s.email         = ["jchristie@acumenholdings.com", "awilliams@acumenholdings.com"]

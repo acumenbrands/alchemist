@@ -4,9 +4,6 @@ module Alchemist
 
     class Transfer
 
-      # - Block and target field should be optional
-      # - Assign return value of the block to the target field
-      # - Target field is source_field if result_field is not given
       def initialize(source_field, result_field=nil, &block)
         @source_field = source_field
         @result_field = result_field
