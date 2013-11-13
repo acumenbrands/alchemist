@@ -17,10 +17,12 @@ describe Alchemist::Rituals::Transfer do
     context "no block is given" do
 
       let(:transfer) { Alchemist::Rituals::Transfer.new(source_field) }
+      before do
+        transfer.call(context)
+      end
 
-
-      it "updates the value of 'title' on the result object" do 
-        expect { transfer.call(context) }.to change { result.title }.to(source_string)
+      it "updates the value of 'title' on the result object" do
+        expect(result.title).to eq(source_string)
       end
 
     end
@@ -38,6 +40,40 @@ describe Alchemist::Rituals::Transfer do
 
       it "executes the block on the given field" do
         expect(result.title).to eq(expected_string)
+      end
+
+    end
+
+    context 'source object is a Hash' do
+      let(:block) { Proc.new { |value| value.downcase } }
+      let(:transfer) { Alchemist::Rituals::Transfer.new(source_field, nil, &block) }
+
+      let(:expected_string) { source[:title].downcase }
+      let(:source) { { title: 'IM SO HAPPY' } }
+
+      before do
+        transfer.call(context)
+      end
+
+      it 'transfers a Hash correctly' do
+        expect(result.title).to eq(expected_string)
+      end
+    end
+
+    context "result object is a Hash" do
+
+      let(:block) { Proc.new { |value| value.upcase } }
+      let(:string) { source.title.upcase }
+
+      let(:transfer) { Alchemist::Rituals::Transfer.new(source_field, nil, &block) }
+      let(:result)   { Hash.new }
+
+      before do
+        transfer.call(context)
+      end
+
+      it 'transfers the correct value to hash' do
+        expect(result[:title]).to eq(string)
       end
 
     end
@@ -110,6 +146,7 @@ describe Alchemist::Rituals::Transfer do
         end
 
       end
+
 
       context "target method is not a mutator" do
 
