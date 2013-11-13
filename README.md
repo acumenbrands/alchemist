@@ -32,6 +32,9 @@ class Admin
 end
 
 Alchemist::RecipeBook.write User, Admin do
+  result do
+    Admin.new
+  end
 
   transfer :name, :full_name
 
@@ -89,7 +92,7 @@ end
 
 #### Transfer
 
-The transfer ritual is the most basic form of conveying data. It takes the result of a given method on your source objects and passes it to a method or field assignment on your result object with optional translation. It has an optional second field argument and optional block to mutate the data in-route to the result.
+The transfer ritual is the most basic form of conveying data. It takes the value of a given method on your source objects and passes it to a method or field assignment on your result object with optional translation. It has an optional second field argument and optional block to mutate the data in-route to the result.
 
 ````ruby
 Alchemist::RecipeBook.write User, Admin do
@@ -116,6 +119,7 @@ end
 * When called with a single field, the operation assumes the method has the same name on both source and result
 * When called with two, the operation calls the first on the source and passes it to the second on the result
 * If a block is given in any case, the block will be used to get the final value passed to the result
+* Transfer is smart enough to know if your object is Hash-like so syntax does not change for transfering to and from fields on a hash.
 
 #### Aggregate Onto
 
@@ -193,7 +197,7 @@ Alchemist::RecipeBook.write User, Admin, :from_database do
 end
 
 user = User.new
-user.name = "Shannon'
+user.name = "Shannon"
 
 # Invoke the "common" recipe
 

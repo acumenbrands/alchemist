@@ -157,4 +157,32 @@ describe Alchemist do
 
   end
 
+  describe 'LocalCustomer to Hash' do
+
+    let(:transmute) { Alchemist.transmute(local_customer, Hash) }
+
+    it 'transfers first_name' do
+      expect(transmute[:first_name]).to eq(local_customer.first_name)
+    end
+
+    it 'transfers last_name' do
+      expect(transmute[:last_name]).to eq(local_customer.last_name)
+    end
+
+  end
+
+  describe 'Hash to LocalCustomer' do
+    let(:transmute) { Alchemist.transmute(hash, LocalCustomer) }
+    subject { transmute }
+    let(:hash) do
+      {
+        first_name: 'Marcellus',
+        last_name: 'Wallace'
+      }
+    end
+
+    its(:first_name) { should eq(hash[:first_name]) }
+    its(:last_name)  { should eq(hash[:last_name]) }
+  end
+
 end
